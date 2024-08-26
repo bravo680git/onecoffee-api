@@ -16,7 +16,7 @@ export class BannerService {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.banner.findFirstOrThrow({ where: { id } });
+      return await this.prisma.banner.findUniqueOrThrow({ where: { id } });
     } catch {
       throw new NotFoundException();
     }
