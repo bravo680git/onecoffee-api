@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// model Base {
+//   createdAt DateTime? @map("created_at")
+//   updatedAt DateTime? @map("updated_at")
+//   deletedAt DateTime? @map("deleted_at")
+// }
+
+model Banner {
+  id Int @id @default(autoincrement())
+  name String?
+  image String
+  caption String?
+  link String
+  isActive Boolean? @default(false) @map("is_active")
+  createdAt DateTime? @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("banner")
+}
+
+model Brand {
+  id Int @id @default(autoincrement())
+  name String
+  createdAt DateTime? @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  products Product[]
+
+  @@map("brand")
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String
+  parentId Int? @map("parent_id")
+  image String?
+  createdAt DateTime? @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  parent Category? @relation("category_categories", fields: [parentId], references: [id] )
+  children Category[] @relation("category_categories")
+  products Product[]
+  blogs Blog[]
+  @@map("category")
+}
+
+model Variant {
+  id Int @id @default(autoincrement())
+  productId Int @map("product_id")
+  values String[]
+  price Int
+  stockQuantity Int? @map("stock_quantity")
+  createdAt DateTime? @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("variant")
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
+  images String[]
+  unit String?
+  price Int?
+  salePercent Float? @map("sale_percent")
+  stockQuantity Int? @map("stock_quantity")
+  categoryId Int @map("category_id")
+  brandId Int? @map("brand_id")
+  seoKeyword String? @map("seo_keyword")
+  seoDescription String? @map("seo_description")
+  pin Boolean? @default(false)
+  extraOptions Json? @map("extra_options")
+  slug String @unique
+  variantProps Json? @map("variant_props")
+  createdAt DateTime? @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  category Category @relation(fields: [categoryId], references: [id])
+  brand Brand? @relation(fields: [brandId], references: [id])
+  variants Variant[]
+
+  @@map("product")
+}
+
+model Blog {
+  id Int @id @default(autoincrement())
+  title String
+  content String
+  thumbnail String?
+  categoryId Int @map("category_id")
+  seoKeyword String? @map("seo_keyword")
+  seoDescription String? @map("seo_description")
+  slug String @unique
+  createdAt DateTime? @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  category Category @relation(fields: [categoryId], references: [id])
+}
