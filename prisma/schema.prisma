@@ -15,8 +15,8 @@ datasource db {
 
 
 // model Base {
-//   createdAt DateTime? @map("created_at")
-//   updatedAt DateTime? @map("updated_at")
+//   createdAt DateTime? @default(now()) @map("created_at")
+//   updatedAt DateTime? @updatedAt @map("updated_at")
 //   deletedAt DateTime? @map("deleted_at")
 // }
 
@@ -27,8 +27,8 @@ model Banner {
   caption String?
   link String
   isActive Boolean? @default(false) @map("is_active")
-  createdAt DateTime? @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   @@map("banner")
@@ -37,8 +37,8 @@ model Banner {
 model Brand {
   id Int @id @default(autoincrement())
   name String
-  createdAt DateTime? @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   products Product[]
@@ -51,8 +51,8 @@ model Category {
   name String
   parentId Int? @map("parent_id")
   image String?
-  createdAt DateTime? @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   parent Category? @relation("category_categories", fields: [parentId], references: [id] )
@@ -68,8 +68,8 @@ model Variant {
   values String[]
   price Int
   stockQuantity Int? @map("stock_quantity")
-  createdAt DateTime? @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   product Product @relation(fields: [productId], references: [id])
@@ -94,8 +94,8 @@ model Product {
   extraOptions Json? @map("extra_options")
   slug String @unique
   variantProps Json? @map("variant_props")
-  createdAt DateTime? @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   category Category @relation(fields: [categoryId], references: [id])
@@ -114,8 +114,8 @@ model Blog {
   seoKeyword String? @map("seo_keyword")
   seoDescription String? @map("seo_description")
   slug String @unique
-  createdAt DateTime? @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   category Category @relation(fields: [categoryId], references: [id])
