@@ -102,6 +102,7 @@ model Product {
   brand Brand? @relation(fields: [brandId], references: [id])
   variants Variant[]
 
+  @@index([slug])
   @@map("product")
 }
 
@@ -119,4 +120,7 @@ model Blog {
   deletedAt DateTime? @map("deleted_at")
 
   category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([slug])
+  @@map("blog")
 }

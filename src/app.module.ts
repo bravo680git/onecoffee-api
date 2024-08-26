@@ -5,9 +5,17 @@ import { ConfigModule } from '@nestjs/config';
 import { BannerModule } from './banner/banner.module';
 import { CategoryModule } from './category/category.module';
 import { BrandModule } from './brand/brand.module';
+import { BlogModule } from './blog/blog.module';
 
 @Module({
-  imports: [CoreModule, ConfigModule.forRoot({}), BannerModule, CategoryModule, BrandModule],
+  imports: [
+    CoreModule,
+    ConfigModule.forRoot({}),
+    BannerModule,
+    CategoryModule,
+    BrandModule,
+    BlogModule,
+  ],
   controllers: [AppController],
   providers: [],
 })
