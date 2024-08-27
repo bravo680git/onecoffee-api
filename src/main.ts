@@ -5,9 +5,12 @@ import { TransformResponseInterceptor } from './lib/interceptors/transform-respo
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({ origin: '*' });
+
   app.setGlobalPrefix('/v1/api');
   app.useGlobalPipes(new RequestValidationPipe());
   app.useGlobalInterceptors(new TransformResponseInterceptor());
+
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

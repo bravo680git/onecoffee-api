@@ -1,3 +1,11 @@
+export const generateUUID = (cfg?: { hasPrefix?: boolean; round?: number }) => {
+  let slug = '';
+  for (let i = 1; i <= (cfg?.round ?? 1); i++) {
+    slug += Math.random().toString(36).slice(2);
+  }
+  return (cfg?.hasPrefix !== false ? '-' : '') + slug;
+};
+
 export const generateSlug = (input: string) => {
   return (
     input
@@ -5,7 +13,7 @@ export const generateSlug = (input: string) => {
       .trim()
       .replace(/[^\w\s-]/g, '')
       .replace(/\s+/g, '-')
-      .replace(/-+/g, '-') + Math.random().toString(36).slice(2)
+      .replace(/-+/g, '-') + generateUUID()
   );
 };
 
