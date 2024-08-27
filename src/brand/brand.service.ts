@@ -11,7 +11,7 @@ export class BrandService {
   }
 
   findAll() {
-    return this.prisma.brand.findMany();
+    return this.prisma.brand.findMany({ orderBy: { updatedAt: 'desc' } });
   }
 
   findOne(id: number) {

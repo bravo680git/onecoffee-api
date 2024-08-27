@@ -11,7 +11,7 @@ export class BannerService {
   }
 
   findAll() {
-    return this.prisma.banner.findMany();
+    return this.prisma.banner.findMany({ orderBy: { updatedAt: 'desc' } });
   }
 
   async findOne(id: number) {

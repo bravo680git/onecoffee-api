@@ -13,7 +13,11 @@ export class BlogService {
   }
 
   async findAll(query?: RequestQuery) {
-    return paginator(this.prisma.blog, {}, query);
+    return paginator(
+      this.prisma.blog,
+      { orderBy: { updatedAt: 'desc' } },
+      query,
+    );
   }
 
   findOne(id: number) {
