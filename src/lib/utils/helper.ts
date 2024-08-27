@@ -18,17 +18,21 @@ export const paginator = async <
 >(
   model: M,
   args: Args,
-  queryParams: RequestQuery,
+  queryParams?: RequestQuery,
 ): Promise<
   | ReturnType<M['findMany']>
   | { meta: ApiResponseMetadata; data: ReturnType<M['findMany']> }
 > => {
-  const page = Number(queryParams.page) || undefined;
-  const limit = Number(queryParams.limit) || undefined;
+  const page = Number(queryParams?.page) || undefined;
+  const limit = Number(queryParams?.limit) || undefined;
   if (!page || !limit) {
     return await model.findMany(args);
   }
-  const count = await model.count(args);
+
+  const countArgs = { ...args };
+  delete countArgs['include'];
+  const count = await model.count(countArgs);
+
   const skip = (page - 1) * limit;
   const data = await model.findMany({ ...args, skip, take: limit });
   return {

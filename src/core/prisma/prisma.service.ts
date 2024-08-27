@@ -8,6 +8,10 @@ import {
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
+  constructor() {
+    super({ log: process.env.DEV === 'true' ? ['info', 'query'] : [] });
+  }
+
   async onModuleInit() {
     await this.$connect();
     const prismaClientWithExtensions = this.$extends(softDelete)
