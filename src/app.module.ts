@@ -12,7 +12,7 @@ import { FileModule } from './file/file.module';
 @Module({
   imports: [
     CoreModule,
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     BannerModule,
     CategoryModule,
     BrandModule,

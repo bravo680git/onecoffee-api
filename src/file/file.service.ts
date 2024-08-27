@@ -22,7 +22,7 @@ export class FileService {
   }
 
   getFileUrl(fileName: string) {
-    return this.bucketUrl + fileName;
+    return this.bucketUrl.replace(/\/$/, '') + '/' + fileName;
   }
 
   async upload(file: Express.Multer.File, name: string) {
