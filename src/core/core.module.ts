@@ -1,11 +1,12 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Global, Module } from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
-import { CacheModule } from '@nestjs/cache-manager';
+import { MailModule } from './mail/mail.module';
 
 @Global()
 @Module({
-  imports: [CacheModule.register()],
+  imports: [CacheModule.register(), MailModule],
   providers: [PrismaService],
-  exports: [PrismaService, CacheModule],
+  exports: [PrismaService, CacheModule, MailModule],
 })
 export class CoreModule {}

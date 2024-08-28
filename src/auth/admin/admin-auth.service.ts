@@ -10,6 +10,7 @@ import { OTP_TTL } from '../auth.constant';
 import { getOtpKey } from '../auth.helper';
 import { LoginPayload, OTPPayload } from '../dto/auth.input';
 import { LoginResponse, OTPResponse } from '../dto/auth.response';
+import { MailService } from 'src/core/mail/mail.service';
 
 @Injectable()
 export class AdminAuthService {
@@ -17,6 +18,7 @@ export class AdminAuthService {
     private usersService: UserService,
     private jwtService: JwtService,
     @Inject(CACHE_MANAGER) private store: Cache,
+    private mailService: MailService,
   ) {}
 
   private async validateUser(email: string, password: string) {
@@ -35,8 +37,11 @@ export class AdminAuthService {
     const user = await this.validateUser(data.email, data.password);
     const otp = await this.generateOTP(user.id);
 
-    // implement send opt to email latter
-    console.log(otp);
+    await this.mailService.sendMail({
+      email: user.email,
+      subject: 'OTP for login',
+      content: `Your OTP is ${otp}`,
+    });
 
     return new OTPResponse(user.id);
   }
