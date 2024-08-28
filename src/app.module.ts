@@ -8,6 +8,8 @@ import { BrandModule } from './brand/brand.module';
 import { BlogModule } from './blog/blog.module';
 import { ProductModule } from './product/product.module';
 import { FileModule } from './file/file.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { FileModule } from './file/file.module';
     BlogModule,
     ProductModule,
     FileModule,
+    AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [],
