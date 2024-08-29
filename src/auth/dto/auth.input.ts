@@ -19,3 +19,9 @@ export class OTPPayload {
   @IsNotEmpty()
   userId: number;
 }
+
+export class RefreshTokenPayload {
+  @IsString()
+  @IsNotEmpty()
+  refreshToken: string;
+}

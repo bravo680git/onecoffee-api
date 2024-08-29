@@ -3,12 +3,12 @@ import { User } from '@prisma/client';
 export class LoginResponse {
   accessToken: string;
   refreshToken: string;
-  user: Omit<User, 'password'>;
+  user?: Omit<User, 'password'>;
 
   constructor(
     accessToken: string,
     refreshToken: string,
-    user: Omit<User, 'password'>,
+    user?: Omit<User, 'password'>,
   ) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
