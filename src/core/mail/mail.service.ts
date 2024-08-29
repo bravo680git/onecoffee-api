@@ -4,6 +4,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { MAIL_QUEUE_KEY, SEND_MAIL_JOB_KEY } from './mail.constant';
 import { MailPayload } from './mail';
+import { generateMailTemplate, MailTemplateType } from './mail.helper';
 
 @Injectable()
 export class MailService {
@@ -18,11 +19,13 @@ export class MailService {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      from: `ONe Coffee <${process.env.SMTP_USER}>`,
     });
   }
 
-  async sendMail(data: MailPayload) {
-    const { content, email, subject } = data;
+  async sendMail<T extends MailTemplateType>(type: T, data: MailPayload<T>) {
+    const { email, data: payload } = data;
+    const { subject, content } = await generateMailTemplate(type, payload);
     await this.mailQueue.add(SEND_MAIL_JOB_KEY, {
       email,
       subject,
@@ -30,17 +33,13 @@ export class MailService {
     });
   }
 
-  async processMail(job: { data: MailPayload }) {
-    const { email, subject, content } = job.data;
+  async processMail(job: { data: any }) {
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_USER,
-        to: email,
-        subject,
-        text: content,
+        ...job.data,
       });
     } catch (error) {
-      console.error(`Failed to send email to ${email}:`, error);
+      console.error(`Failed to send email:`, error);
     }
   }
 }

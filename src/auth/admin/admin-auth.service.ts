@@ -37,10 +37,9 @@ export class AdminAuthService {
     const user = await this.validateUser(data.email, data.password);
     const otp = await this.generateOTP(user.id);
 
-    await this.mailService.sendMail({
+    await this.mailService.sendMail('admin-otp', {
       email: user.email,
-      subject: 'OTP for login',
-      content: `Your OTP is ${otp}`,
+      data: { name: 'Admin', otp, expirationTime: OTP_TTL / 60 / 1000 },
     });
 
     return new OTPResponse(user.id);

@@ -1,1 +1,6 @@
-export type MailPayload = { email: string; subject: string; content: string };
+import { MailTemplateData, MailTemplateType } from './mail.helper';
+
+export type MailPayload<T extends MailTemplateType> = {
+  email: string;
+  data: MailTemplateData[T];
+};
