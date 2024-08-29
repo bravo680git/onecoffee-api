@@ -6,7 +6,11 @@ import { Cache } from 'cache-manager';
 import { ERROR_MESSAGE } from 'src/lib/utils/constant';
 import { UserService } from 'src/user/user.service';
 import type { JwtPayload } from '../auth';
-import { OTP_TTL } from '../auth.constant';
+import {
+  ADMIN_ACCESS_TOKEN_EXPIRED_IN,
+  ADMIN_REFRESH_TOKEN_EXPIRED_IN,
+  OTP_TTL,
+} from '../auth.constant';
 import { getOtpKey } from '../auth.helper';
 import { LoginPayload, OTPPayload } from '../dto/auth.input';
 import { LoginResponse, OTPResponse } from '../dto/auth.response';
@@ -39,7 +43,7 @@ export class AdminAuthService {
 
     await this.mailService.sendMail('admin-otp', {
       email: user.email,
-      data: { name: 'Admin', otp, expirationTime: OTP_TTL / 60 / 1000 },
+      data: { name: 'Admin', otp, expirationTime: OTP_TTL / 60 },
     });
 
     return new OTPResponse(user.id);
@@ -52,7 +56,7 @@ export class AdminAuthService {
       return existedOtp;
     }
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    await this.store.set(key, otp, OTP_TTL);
+    await this.store.set(key, otp, { ttl: OTP_TTL });
     return otp;
   }
 
@@ -69,10 +73,15 @@ export class AdminAuthService {
       }
 
       const jwtPayload: JwtPayload = { email: user.email, sub: user.id };
-      const accessToken = this.jwtService.sign(JSON.stringify(jwtPayload), {
+      const accessToken = this.jwtService.sign(jwtPayload, {
         secret: process.env.JWT_ADMIN_ACCESS_SECRET,
+        expiresIn: ADMIN_ACCESS_TOKEN_EXPIRED_IN,
       });
-      return new LoginResponse(accessToken, '', user);
+      const refreshToken = this.jwtService.sign(jwtPayload, {
+        secret: process.env.JWT_ADMIN_REFRESH_SECRET,
+        expiresIn: ADMIN_REFRESH_TOKEN_EXPIRED_IN,
+      });
+      return new LoginResponse(accessToken, refreshToken, user);
     } catch {
       throw new BadRequestException(ERROR_MESSAGE.INVALID_OTP);
     }

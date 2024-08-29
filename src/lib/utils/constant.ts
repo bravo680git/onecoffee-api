@@ -1,6 +1,6 @@
 export const ERROR_MESSAGE = {
-  INVALID_CREDENTIAL: 'username_or_password_incorrect',
-  INVALID_OTP: 'invalid_otp',
+  INVALID_CREDENTIAL: 'USERNAME_OR_PASSWORD_INCORRECT',
+  INVALID_OTP: 'TOKEN_INCORRECT',
 };
 
 export const JWT_CONFIG = {
