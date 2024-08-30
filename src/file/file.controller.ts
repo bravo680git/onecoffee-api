@@ -6,12 +6,15 @@ import {
   ParseFilePipe,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from './file.service';
+import { AdminJwtAuth } from 'src/auth';
 
 @Controller('admin/file')
+@UseGuards(AdminJwtAuth)
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 

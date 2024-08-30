@@ -6,9 +6,11 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { BannerService } from './banner.service';
 import { CreateBannerDto, UpdateBannerDto } from './dto/banner.input';
+import { AdminJwtAuth } from 'src/auth';
 
 @Controller('banner')
 export class BannerController {
@@ -25,6 +27,7 @@ export class BannerController {
 }
 
 @Controller('admin/banner')
+@UseGuards(AdminJwtAuth)
 export class AdminBannerController {
   constructor(private readonly bannerService: BannerService) {}
 

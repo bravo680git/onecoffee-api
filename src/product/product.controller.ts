@@ -7,9 +7,11 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto, UpdateProductDto } from './dto/product.input';
+import { AdminJwtAuth } from 'src/auth';
 
 @Controller('product')
 export class ProductController {
@@ -27,6 +29,7 @@ export class ProductController {
 }
 
 @Controller('admin/product')
+@UseGuards(AdminJwtAuth)
 export class AdminProductController {
   constructor(private readonly productService: ProductService) {}
 

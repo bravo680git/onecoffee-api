@@ -7,9 +7,11 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto, UpdateBlogDto } from './dto/blog.input';
+import { AdminJwtAuth } from 'src/auth';
 
 @Controller('blog')
 export class BlogController {
@@ -27,6 +29,7 @@ export class BlogController {
 }
 
 @Controller('admin/blog')
+@UseGuards(AdminJwtAuth)
 export class AdminBlogController {
   constructor(private readonly blogService: BlogService) {}
 

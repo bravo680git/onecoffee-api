@@ -6,9 +6,11 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { CreateBrandDto, UpdateBrandDto } from './dto/brand.input';
+import { AdminJwtAuth } from 'src/auth';
 
 @Controller('brand')
 export class BrandController {
@@ -26,6 +28,7 @@ export class BrandController {
 }
 
 @Controller('admin/brand')
+@UseGuards(AdminJwtAuth)
 export class AdminBrandController {
   constructor(private readonly brandService: BrandService) {}
 
