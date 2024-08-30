@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "migrate": "npx prisma migrate dev"
+    "migrate": "npx prisma migrate dev",
+    "seed:run": "node -r ts-node/register --env-file=seed.env prisma/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.637.0",
