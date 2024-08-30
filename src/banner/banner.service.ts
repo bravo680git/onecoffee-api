@@ -10,8 +10,11 @@ export class BannerService {
     return this.prisma.banner.create({ data: payload });
   }
 
-  findAll() {
-    return this.prisma.banner.findMany({ orderBy: { updatedAt: 'desc' } });
+  findAll(activeOnly?: boolean) {
+    return this.prisma.banner.findMany({
+      where: { isActive: activeOnly || undefined },
+      orderBy: { updatedAt: 'desc' },
+    });
   }
 
   async findOne(id: number) {

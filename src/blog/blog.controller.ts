@@ -22,6 +22,11 @@ export class BlogController {
     return this.blogService.findAll(query);
   }
 
+  @Get('/by-category')
+  findCategoriesBlogs(@Query() query?: RequestQuery) {
+    return this.blogService.findCategoriesBlogs(query?.limit);
+  }
+
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
     return this.blogService.findOneBySlug(slug);

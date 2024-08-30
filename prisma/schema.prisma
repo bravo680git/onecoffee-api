@@ -97,6 +97,7 @@ model Product {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
+  actualAvgPrice Float @map("actual_avg_price") @default(0)
 
   category Category @relation(fields: [categoryId], references: [id])
   brand Brand? @relation(fields: [brandId], references: [id])

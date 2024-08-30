@@ -5,4 +5,5 @@ type RequestQuery = {
   sort?: string;
   category?: string;
   price?: string;
+  pin?: string;
 };

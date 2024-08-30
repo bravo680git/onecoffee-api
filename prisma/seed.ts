@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { CATEGORY_TYPE_ID } from 'src/lib/utils/constant';
 
 const prisma = new PrismaClient({ log: ['query'] });
 
@@ -22,7 +23,7 @@ async function main() {
       },
       update: { name: 'Blogs', parentId: null },
       where: {
-        id: 1,
+        id: CATEGORY_TYPE_ID.BLOG,
       },
     }),
     prisma.category.upsert({
@@ -31,7 +32,7 @@ async function main() {
       },
       update: { name: 'Products', parentId: null },
       where: {
-        id: 2,
+        id: CATEGORY_TYPE_ID.PRODUCT,
       },
     }),
     prisma.category.upsert({
@@ -40,7 +41,7 @@ async function main() {
       },
       update: { name: 'About', parentId: null },
       where: {
-        id: 3,
+        id: CATEGORY_TYPE_ID.ABOUT,
       },
     }),
     prisma.blog.upsert({
@@ -61,7 +62,7 @@ async function main() {
         createdAt: null,
       },
       update: { createdAt: null },
-      where: { slug: 'quyen-rieng-tu' },
+      where: { slug: 'dieu-khoan' },
     }),
   ]);
 }

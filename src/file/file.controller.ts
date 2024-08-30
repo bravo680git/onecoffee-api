@@ -12,19 +12,23 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from './file.service';
 import { AdminJwtAuth } from 'src/auth';
+import { ERROR_MESSAGES, MAX_SIZE } from './file.constant';
 
 @Controller('admin/file')
-@UseGuards(AdminJwtAuth)
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Post('upload')
+  @UseGuards(AdminJwtAuth)
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 300000 }),
+          new MaxFileSizeValidator({
+            maxSize: MAX_SIZE,
+            message: ERROR_MESSAGES.MAX_SIZE_EXCEED,
+          }),
           new FileTypeValidator({ fileType: 'image/*' }),
         ],
       }),

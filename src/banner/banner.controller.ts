@@ -17,7 +17,7 @@ export class BannerController {
   constructor(private readonly bannerService: BannerService) {}
   @Get()
   findAll() {
-    return this.bannerService.findAll();
+    return this.bannerService.findAll(true);
   }
 
   @Get(':id')

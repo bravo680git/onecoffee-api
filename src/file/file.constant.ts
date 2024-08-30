@@ -1,0 +1,6 @@
+export const ERROR_MESSAGES = {
+  MAX_SIZE_EXCEED: 'MAX_SIZE_EXCEED',
+  INVALID_TYPE: 'INVALID_TYPE',
+};
+
+export const MAX_SIZE = 400000;
