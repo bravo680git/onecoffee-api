@@ -1,23 +1,42 @@
 services:
-  db:
-    container_name: onecoffee-db
-    image: postgres:16
+  # db:
+  #   container_name: onecoffee-db
+  #   image: postgres:16
+  #   env_file:
+  #     - ./.env
+  #   environment:
+  #     POSTGRES_USER: ${DB_USER}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #     POSTGRES_DB: ${DB_NAME}
+  #     PGDATA: /var/lib/postgresql/data/pgdata
+  #   ports:
+  #     - '${DB_PORT}:5432'
+  #   volumes:
+  #     - ./pgdata:/var/lib/postgresql/data/pgdata
+  #   networks:
+  #     - system-network
+
+  # redis:
+  #   container_name: onecoffee-redis
+  #   image: redis:6
+  #   command: redis-server --requirepass ${REDIS_PASSWORD}
+  #   env_file:
+  #     - ./.env
+  #   ports:
+  #     - '${REDIS_PORT}:6379'
+  #   networks:
+  #     - system-network
+
+  api:
+    container_name: onecoffee-api
+    image: bravo680/onecoffee-api:latest
     env_file:
       - ./.env
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - '${DB_PORT}:5432'
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data/pgdata
-  redis:
-    container_name: onecoffee-redis
-    image: redis:6
-    command: redis-server --requirepass ${REDIS_PASSWORD}
-    env_file:
-      - ./.env
-    ports:
-      - '${REDIS_PORT}:6379'
+      - '${PORT}:${PORT}'
+    networks:
+      - system-network
+
+networks:
+  system-network:
+    external: true
