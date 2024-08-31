@@ -13,6 +13,9 @@ import { MAIL_QUEUE_KEY } from './mail.constant';
         port: Number(process.env.REDIS_PORT),
         password: process.env.REDIS_PASSWORD,
       },
+      defaultJobOptions: {
+        removeOnComplete: true,
+      },
     }),
   ],
   providers: [MailService, MailProcessor],

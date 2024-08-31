@@ -21,9 +21,9 @@ export const generateMailTemplate = async (
 ) => {
   const templatePath = join(__dirname, 'templates', `${type}.ejs`);
 
-  const content = await renderFile(templatePath, data);
+  const html = await renderFile(templatePath, data);
   return {
-    content,
+    html,
     subject: MAIL_SUBJECTS[type],
   };
 };

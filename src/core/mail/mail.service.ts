@@ -14,30 +14,34 @@ export class MailService {
     this.transporter = createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
-      secure: false,
+      secure: true,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      from: `ONe Coffee <${process.env.SMTP_USER}>`,
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
   }
 
   async sendMail<T extends MailTemplateType>(type: T, data: MailPayload<T>) {
-    const { email, data: payload } = data;
-    const { subject, content } = await generateMailTemplate(type, payload);
+    const { to, data: payload } = data;
+    const { subject, html } = await generateMailTemplate(type, payload);
     await this.mailQueue.add(SEND_MAIL_JOB_KEY, {
-      email,
+      to,
       subject,
-      content,
+      html,
     });
   }
 
   async processMail(job: { data: any }) {
     try {
       await this.transporter.sendMail({
+        from: `"ONe Coffee admin" ${process.env.SMTP_USER}`,
         ...job.data,
       });
+      console.log('Send mail successfully to %s', job.data.to);
     } catch (error) {
       console.error(`Failed to send email:`, error);
     }
