@@ -76,8 +76,9 @@ jobs:
           ssh -tt -o StrictHostKeyChecking=no -i key.pem $SSH_USER@$SSH_HOST "
             cd $WEB_FOLDER && \
             echo \"${{ secrets.ENVS }}\" > .env && \
+            echo \"${{ secrets.SEED_ENV }}\" > seed.env && \
             if [ -f docker-compose.yaml ]; then \
-              echo \"docker-compose.yml exists, proceeding with deployment.\" && \
+              echo \"docker-compose.yaml exists, proceeding with deployment.\" && \
               docker compose down && \
               docker rmi -f $IMAGE_NAME:$IMAGE_TAG && \
               docker pull $IMAGE_NAME:$IMAGE_TAG && \
