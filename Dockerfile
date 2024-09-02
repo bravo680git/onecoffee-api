@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM node:21-alpine AS builder
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN npm i -g pnpm
@@ -8,7 +8,7 @@ RUN npx prisma generate
 RUN pnpm build
 RUN pnpm i -P
 
-FROM node:22-alpine AS runner
+FROM node:21-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
