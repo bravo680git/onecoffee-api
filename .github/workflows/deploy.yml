@@ -75,8 +75,7 @@ jobs:
         run: |
           ssh -tt -o StrictHostKeyChecking=no -i key.pem $SSH_USER@$SSH_HOST "
             cd $WEB_FOLDER && \
-
-            echo '${{ secrets.ENVS }' > .env && \
+            echo '${{ secrets.ENVS }}' > .env && \
             echo '${{ secrets.SEED_ENV }}' >> .env && \
             if [ -f docker-compose.yaml ]; then \
               echo \"docker-compose.yaml exists, proceeding with deployment.\" && \
