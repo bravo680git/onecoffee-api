@@ -72,13 +72,11 @@ jobs:
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
-          ENVS: ${{ secrets.ENVS }}
-          SEED_ENV: ${{ secrets.SEED_ENV }}
         run: |
           ssh -tt -o StrictHostKeyChecking=no -i key.pem $SSH_USER@$SSH_HOST "
             cd $WEB_FOLDER && \
-            echo \"${ENVS}\" > .env && \
-            echo \"${SEED_ENV}\" >> .env && \
+            echo '${{ secrets.ENVS }' > .env && \
+            echo '${{ secrets.SEED_ENV }}' >> .env && \
             if [ -f docker-compose.yaml ]; then \
               echo \"docker-compose.yaml exists, proceeding with deployment.\" && \
               docker compose down && \
