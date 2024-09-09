@@ -5,18 +5,6 @@ const prisma = new PrismaClient({ log: ['query'] });
 
 async function main() {
   return Promise.allSettled([
-    prisma.user.upsert({
-      create: {
-        email: process.env.ADMIN_EMAIL!,
-        password: process.env.ADMIN_PASSWORD!,
-      },
-      update: {
-        password: process.env.ADMIN_PASSWORD!,
-      },
-      where: {
-        email: process.env.ADMIN_EMAIL!,
-      },
-    }),
     prisma.category.upsert({
       create: {
         name: 'Blogs',
