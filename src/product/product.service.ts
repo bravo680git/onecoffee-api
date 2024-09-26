@@ -24,10 +24,10 @@ export class ProductService {
     return price ? price * (1 - (salePercent ?? 0) / 100) : undefined;
   }
 
-  private transformPayload(
-    data: CreateProductDto | UpdateProductDto,
+  private transformPayload<T extends CreateProductDto | UpdateProductDto>(
+    data: T,
     slug?: string,
-  ): Prisma.ProductCreateInput | Prisma.ProductUpdateInput {
+  ) {
     if (
       isNaN(Number(data.price)) &&
       !(data.variantProps?.length && data.variants?.length)
@@ -35,9 +35,7 @@ export class ProductService {
       throw new BadRequestException('Price or variants must be provided');
     }
 
-    const transformedData:
-      | Prisma.ProductCreateInput
-      | Prisma.ProductUpdateInput = {
+    const transformedData: Prisma.ProductUpdateInput = {
       ...data,
       extraOptions: data.extraOptions
         ? JSON.stringify(data.extraOptions)
@@ -64,13 +62,15 @@ export class ProductService {
       );
     }
 
-    return transformedData;
+    return transformedData as T extends CreateProductDto
+      ? Prisma.ProductCreateInput
+      : Prisma.ProductUpdateInput;
   }
 
   create(payload: CreateProductDto) {
     const slug = generateSlug(payload.name);
     return this.prisma.product.create({
-      data: this.transformPayload(payload, slug) as Prisma.ProductCreateInput,
+      data: this.transformPayload(payload, slug),
       select: { id: true },
     });
   }
@@ -148,7 +148,7 @@ export class ProductService {
     await this.prisma.variant.deleteMany({ where: { productId: id } });
     return this.prisma.product.update({
       where: { id },
-      data: this.transformPayload(payload) as Prisma.ProductUpdateInput,
+      data: this.transformPayload(payload),
       select: { id: true },
     });
   }

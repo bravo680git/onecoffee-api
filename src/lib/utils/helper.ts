@@ -47,7 +47,7 @@ export const paginator = async <
     meta: {
       current: page,
       size: limit,
-      total: Math.ceil(count / limit),
+      total: count,
     },
     data,
   };
