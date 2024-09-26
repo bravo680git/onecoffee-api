@@ -37,7 +37,7 @@ export const paginator = async <
     return await model.findMany(args);
   }
 
-  const countArgs = { ...args };
+  const countArgs = { ...args, where: { deletedAt: null } };
   delete countArgs['include'];
   const count = await model.count(countArgs);
 
