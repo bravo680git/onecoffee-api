@@ -34,11 +34,11 @@ const mapper = (item: ProductItemInput): ProductItemOutput => {
 
 export const productMapper = (data: ProductMapperPayload) => {
   if (Array.isArray(data)) {
-    return data.map((item) => mapper(item));
+    return data.map(mapper);
   } else if (data['data'] && Array.isArray(data['data'])) {
     return {
       ...data,
-      data: data['data'].map((item: ProductItemInput) => mapper(item)),
+      data: data['data'].map(mapper),
     };
   } else {
     return mapper(data as ProductItemInput);

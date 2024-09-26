@@ -55,7 +55,8 @@ export const filterSoftDeleted = Prisma.defineExtension({
           operation === 'findFirst' ||
           operation === 'findMany' ||
           operation === 'findUniqueOrThrow' ||
-          operation === 'findFirstOrThrow'
+          operation === 'findFirstOrThrow' ||
+          operation === 'count'
         ) {
           args.where = { ...args.where, deletedAt: null };
           return query(args);
