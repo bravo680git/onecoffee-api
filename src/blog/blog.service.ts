@@ -70,7 +70,11 @@ export class BlogService {
 
   async update(id: number, payload: UpdateBlogDto) {
     await this.findOne(id);
-    return this.prisma.blog.update({ where: { id }, data: payload });
+    return this.prisma.blog.update({
+      where: { id },
+      data: payload,
+      select: { id: true, slug: true },
+    });
   }
 
   async remove(id: number) {

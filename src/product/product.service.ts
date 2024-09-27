@@ -149,7 +149,7 @@ export class ProductService {
     return this.prisma.product.update({
       where: { id },
       data: this.transformPayload(payload),
-      select: { id: true },
+      select: { id: true, slug: true },
     });
   }
 
