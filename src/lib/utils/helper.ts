@@ -11,7 +11,9 @@ export const generateSlug = (input: string) => {
     input
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s-]/g, '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replaceAll('đ', 'd')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-') + generateUUID()
   );
