@@ -1,14 +1,12 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   BadRequestException,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcryptjs';
-import { Cache } from 'cache-manager';
 import { MailService } from 'src/core/mail/mail.service';
+import { RedisService } from 'src/core/redis/redis.service';
 import { UserService } from 'src/user/user.service';
 import type { JwtPayload } from '../auth';
 import {
@@ -34,7 +32,7 @@ export class AdminAuthService {
   constructor(
     private usersService: UserService,
     private jwtService: JwtService,
-    @Inject(CACHE_MANAGER) private store: Cache,
+    private store: RedisService,
     private mailService: MailService,
   ) {}
 

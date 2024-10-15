@@ -1,18 +1,16 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   ExecutionContext,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Cache } from 'cache-manager';
 import { Request } from 'express';
+import { RedisService } from 'src/core/redis/redis.service';
 import { getAdminTokenBlacklistKey } from '../auth.helper';
 
 @Injectable()
 export class AdminJwtAuth extends AuthGuard('jwt') {
-  constructor(@Inject(CACHE_MANAGER) private readonly store: Cache) {
+  constructor(private readonly store: RedisService) {
     super();
   }
 

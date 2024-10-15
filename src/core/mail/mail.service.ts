@@ -35,7 +35,7 @@ export class MailService {
     });
   }
 
-  async processMail(job: { data: any }) {
+  async processMail(job: { data: { to: string } }) {
     try {
       await this.transporter.sendMail({
         from: `"ONe Coffee admin" ${process.env.SMTP_USER}`,
