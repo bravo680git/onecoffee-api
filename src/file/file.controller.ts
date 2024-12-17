@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from './file.service';
-import { AdminJwtAuth } from 'src/auth';
+import { AdminAuthGuard } from 'src/auth';
 import { ERROR_MESSAGES, MAX_SIZE } from './file.constant';
 
 @Controller('admin/file')
@@ -19,7 +19,7 @@ export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Post('upload')
-  @UseGuards(AdminJwtAuth)
+  @UseGuards(AdminAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
     @UploadedFile(

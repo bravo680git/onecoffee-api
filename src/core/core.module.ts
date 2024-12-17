@@ -1,11 +1,11 @@
 import { Global, Module } from '@nestjs/common';
-import { MailModule } from './mail/mail.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { MailModule } from './mail/mail.module';
 import { RedisModule } from './redis/redis.module';
 
 @Global()
 @Module({
-  imports: [MailModule, RedisModule, PrismaModule],
-  exports: [PrismaModule, MailModule, RedisModule],
+  imports: [RedisModule, MailModule, PrismaModule],
+  exports: [RedisModule, MailModule, PrismaModule],
 })
 export class CoreModule {}

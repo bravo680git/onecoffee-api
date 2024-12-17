@@ -8,7 +8,7 @@ import { compare } from 'bcryptjs';
 import { MailService } from 'src/core/mail/mail.service';
 import { RedisService } from 'src/core/redis/redis.service';
 import { UserService } from 'src/user/user.service';
-import type { JwtPayload } from '../auth';
+import type { JwtPayload, TokenType } from '../auth';
 import {
   ADMIN_ACCESS_TOKEN_EXPIRED_IN,
   ADMIN_REFRESH_TOKEN_EXPIRED_IN,
@@ -19,7 +19,7 @@ import {
   getAdminOtpKey,
   getAdminRefreshKey,
   getAdminTokenBlacklistKey,
-} from '../auth.helper';
+} from './auth.helper';
 import {
   LoginPayload,
   OTPPayload,
@@ -28,7 +28,7 @@ import {
 import { LoginResponse, OTPResponse } from '../dto/auth.response';
 
 @Injectable()
-export class AdminAuthService {
+export class AuthService {
   constructor(
     private usersService: UserService,
     private jwtService: JwtService,
@@ -85,8 +85,7 @@ export class AdminAuthService {
 
   async verifyOTP(payload: OTPPayload) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...user } = await this.usersService.findOneById(
+      const { password: _, ...user } = await this.usersService.findOneById(
         payload.userId,
       );
       const otpKey = getAdminOtpKey(user.id);
@@ -111,68 +110,61 @@ export class AdminAuthService {
         },
       );
 
-      return new LoginResponse(accessToken, refreshToken, user);
-    } catch (err) {
-      console.log(err);
-
+      return new LoginResponse({ accessToken, refreshToken, user });
+    } catch {
       throw new BadRequestException(ERROR_MESSAGE.INVALID_OTP);
     }
   }
 
   async refreshToken(payload: RefreshTokenPayload) {
-    try {
-      const jwtPayload = this.jwtService.verify<JwtPayload>(
-        payload.refreshToken,
-        {
-          secret: process.env.JWT_ADMIN_REFRESH_SECRET,
-        },
-      );
-      const oldToken = getAdminRefreshKey({
-        userId: jwtPayload.sub,
-        token: payload.refreshToken,
-      });
-      const isValid = !!(await this.store.get<string>(oldToken));
-      if (!isValid) {
-        throw new Error();
-      }
-
-      const { accessToken, refreshToken } = this.generateTokens({
-        email: jwtPayload.email,
-        sub: jwtPayload.sub,
-      });
-
-      await Promise.allSettled([
-        this.store.del(oldToken),
-        this.store.set(
-          getAdminRefreshKey({ userId: jwtPayload.sub, token: refreshToken }),
-          jwtPayload.email,
-          {
-            ttl: ADMIN_REFRESH_TOKEN_EXPIRED_IN,
-          },
-        ),
-      ]);
-      return new LoginResponse(accessToken, refreshToken);
-    } catch (err) {
-      console.log(err);
-      throw new UnauthorizedException();
+    const jwtPayload = this.verifyToken(payload.refreshToken, 'refresh');
+    const oldToken = getAdminRefreshKey({
+      userId: jwtPayload.sub,
+      token: payload.refreshToken,
+    });
+    const isValid = !!(await this.store.get<string>(oldToken));
+    if (!isValid) {
+      throw new Error();
     }
+
+    const { accessToken, refreshToken } = this.generateTokens({
+      email: jwtPayload.email,
+      sub: jwtPayload.sub,
+    });
+
+    await Promise.allSettled([
+      this.store.del(oldToken),
+      this.store.set(
+        getAdminRefreshKey({ userId: jwtPayload.sub, token: refreshToken }),
+        jwtPayload.email,
+        {
+          ttl: ADMIN_REFRESH_TOKEN_EXPIRED_IN,
+        },
+      ),
+    ]);
+    return new LoginResponse({ accessToken, refreshToken });
   }
 
   async logout(userId: number, token: string) {
     try {
-      const jwtPayload = this.jwtService.verify<{ exp: number }>(token, {
-        secret: process.env.JWT_ADMIN_ACCESS_SECRET,
-      });
+      const jwtPayload = this.verifyToken(token, 'access');
       const exp = jwtPayload.exp - Math.floor(Date.now() / 1000);
       await Promise.allSettled([
         this.store.del(getAdminRefreshKey({ userId, getAll: true })),
         this.store.set(getAdminTokenBlacklistKey(token), userId, { ttl: exp }),
       ]);
       return true;
-    } catch (err) {
-      console.log(err);
-
+    } catch {
       throw new UnauthorizedException();
     }
+  }
+
+  verifyToken(token: string, type: TokenType) {
+    return this.jwtService.verify<JwtPayload & { exp: number }>(token, {
+      secret:
+        type === 'access'
+          ? process.env.JWT_ADMIN_ACCESS_SECRET
+          : process.env.JWT_ADMIN_REFRESH_SECRET,
+    });
   }
 }

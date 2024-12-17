@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { FileResponseDto } from './dto/file.respone';
+import { FileResponseDto } from './dto/file.response';
 import { generateUUID } from 'src/lib/utils/helper';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 

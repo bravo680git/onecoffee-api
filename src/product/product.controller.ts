@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto, UpdateProductDto } from './dto/product.input';
-import { AdminJwtAuth } from 'src/auth';
+import { AdminAuthGuard } from 'src/auth';
 
 @Controller('product')
 export class ProductController {
@@ -29,7 +29,7 @@ export class ProductController {
 }
 
 @Controller('admin/product')
-@UseGuards(AdminJwtAuth)
+@UseGuards(AdminAuthGuard)
 export class AdminProductController {
   constructor(private readonly productService: ProductService) {}
 

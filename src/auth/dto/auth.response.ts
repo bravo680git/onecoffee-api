@@ -4,22 +4,11 @@ export class LoginResponse {
   accessToken: string;
   refreshToken: string;
   user?: Omit<User, 'password'>;
-
-  constructor(
-    accessToken: string,
-    refreshToken: string,
-    user?: Omit<User, 'password'>,
-  ) {
-    this.accessToken = accessToken;
-    this.refreshToken = refreshToken;
-    this.user = user;
+  constructor(data: LoginResponse) {
+    Object.assign(this, data);
   }
 }
 
 export class OTPResponse {
-  userId: number;
-
-  constructor(userId: number) {
-    this.userId = userId;
-  }
+  constructor(private userId: number) {}
 }

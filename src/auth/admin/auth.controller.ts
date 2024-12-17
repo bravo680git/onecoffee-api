@@ -6,44 +6,44 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { User } from '../auth.decorator';
+import { AuthUser } from '../auth.decorator';
 import {
   LoginPayload,
   OTPPayload,
   RefreshTokenPayload,
 } from '../dto/auth.input';
-import { AdminAuthService } from './admin-auth.service';
-import { AdminJwtAuth } from './admin-jwt.guard';
+import { AuthService } from './auth.service';
+import { AuthGuard } from './auth.guard';
 import { Request } from 'express';
 
 @Controller('admin/auth')
-export class AdminAuthController {
-  constructor(private readonly adminAuthService: AdminAuthService) {}
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   @HttpCode(200)
   adminLogin(@Body() data: LoginPayload) {
-    return this.adminAuthService.login(data);
+    return this.authService.login(data);
   }
 
   @Post('/verify-otp')
   @HttpCode(200)
   verifyOTP(@Body() data: OTPPayload) {
-    return this.adminAuthService.verifyOTP(data);
+    return this.authService.verifyOTP(data);
   }
 
   @Post('/refresh')
   @HttpCode(200)
   refreshToken(@Body() payload: RefreshTokenPayload) {
-    return this.adminAuthService.refreshToken(payload);
+    return this.authService.refreshToken(payload);
   }
 
   @Post('/logout')
-  @UseGuards(AdminJwtAuth)
+  @UseGuards(AuthGuard)
   @HttpCode(200)
-  logout(@User('sub') userId: number, @Req() req: Request) {
+  logout(@AuthUser('sub') userId: number, @Req() req: Request) {
     const token = req.headers.authorization!.split(' ')[1];
 
-    return this.adminAuthService.logout(userId, token);
+    return this.authService.logout(userId, token);
   }
 }

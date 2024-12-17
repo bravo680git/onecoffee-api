@@ -1,1 +1,1 @@
-export * from './admin/admin-jwt.guard';
+export { AuthGuard as AdminAuthGuard } from './admin/auth.guard';

@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto, UpdateBlogDto } from './dto/blog.input';
-import { AdminJwtAuth } from 'src/auth';
+import { AdminAuthGuard } from 'src/auth';
 
 @Controller('blog')
 export class BlogController {
@@ -34,7 +34,7 @@ export class BlogController {
 }
 
 @Controller('admin/blog')
-@UseGuards(AdminJwtAuth)
+@UseGuards(AdminAuthGuard)
 export class AdminBlogController {
   constructor(private readonly blogService: BlogService) {}
 

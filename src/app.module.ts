@@ -13,8 +13,8 @@ import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    CoreModule,
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    CoreModule,
     BannerModule,
     CategoryModule,
     BrandModule,
