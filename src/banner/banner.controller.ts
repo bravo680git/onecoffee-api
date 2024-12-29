@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { BannerService } from './banner.service';
 import { CreateBannerDto, UpdateBannerDto } from './dto/banner.input';
-import { AdminAuthGuard } from 'src/auth';
+import { AuthGuard, AuthRoles, USER_ROLE } from 'src/auth';
 
 @Controller('banner')
 export class BannerController {
@@ -27,7 +27,8 @@ export class BannerController {
 }
 
 @Controller('admin/banner')
-@UseGuards(AdminAuthGuard)
+@AuthRoles(USER_ROLE.ADMIN)
+@UseGuards(AuthGuard)
 export class AdminBannerController {
   constructor(private readonly bannerService: BannerService) {}
 

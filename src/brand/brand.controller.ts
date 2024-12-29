@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { CreateBrandDto, UpdateBrandDto } from './dto/brand.input';
-import { AdminAuthGuard } from 'src/auth';
+import { AuthGuard, AuthRoles, USER_ROLE } from 'src/auth';
 
 @Controller('brand')
 export class BrandController {
@@ -28,7 +28,8 @@ export class BrandController {
 }
 
 @Controller('admin/brand')
-@UseGuards(AdminAuthGuard)
+@AuthRoles(USER_ROLE.ADMIN)
+@UseGuards(AuthGuard)
 export class AdminBrandController {
   constructor(private readonly brandService: BrandService) {}
 

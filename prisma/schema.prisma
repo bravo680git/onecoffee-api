@@ -126,11 +126,17 @@ model Blog {
   @@map("blog")
 }
 
+enum UserRole {
+  ADMIN
+  USER
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
   avatar String?
+  role UserRole
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")

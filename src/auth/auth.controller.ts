@@ -6,15 +6,16 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AuthUser } from '../auth.decorator';
+import { Request } from 'express';
+import { USER_ROLE } from './auth.constant';
+import { AuthRoles, AuthUser } from './auth.decorator';
+import { AuthGuard } from './auth.guard';
+import { AuthService } from './auth.service';
 import {
   LoginPayload,
   OTPPayload,
   RefreshTokenPayload,
-} from '../dto/auth.input';
-import { AuthService } from './auth.service';
-import { AuthGuard } from './auth.guard';
-import { Request } from 'express';
+} from './dto/auth.input';
 
 @Controller('admin/auth')
 export class AuthController {
@@ -39,6 +40,7 @@ export class AuthController {
   }
 
   @Post('/logout')
+  @AuthRoles(USER_ROLE.ADMIN)
   @UseGuards(AuthGuard)
   @HttpCode(200)
   logout(@AuthUser('sub') userId: number, @Req() req: Request) {

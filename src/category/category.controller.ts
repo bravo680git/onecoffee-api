@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.input';
-import { AdminAuthGuard } from 'src/auth';
+import { AuthGuard, AuthRoles, USER_ROLE } from 'src/auth';
 
 @Controller('category')
 export class CategoryController {
@@ -27,7 +27,8 @@ export class CategoryController {
 }
 
 @Controller('admin/category')
-@UseGuards(AdminAuthGuard)
+@AuthRoles(USER_ROLE.ADMIN)
+@UseGuards(AuthGuard)
 export class AdminCategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 

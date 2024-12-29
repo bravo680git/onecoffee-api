@@ -8,29 +8,26 @@ import { compare } from 'bcryptjs';
 import { MailService } from 'src/core/mail/mail.service';
 import { RedisService } from 'src/core/redis/redis.service';
 import { UserService } from 'src/user/user.service';
-import type { JwtPayload, TokenType } from '../auth';
+import type { JwtPayload, TokenType } from './auth';
 import {
-  ADMIN_ACCESS_TOKEN_EXPIRED_IN,
-  ADMIN_REFRESH_TOKEN_EXPIRED_IN,
+  ACCESS_TOKEN_EXPIRED_IN,
+  REFRESH_TOKEN_EXPIRED_IN,
   ERROR_MESSAGE,
   OTP_TTL,
-} from '../auth.constant';
-import {
-  getAdminOtpKey,
-  getAdminRefreshKey,
-  getAdminTokenBlacklistKey,
-} from './auth.helper';
+} from './auth.constant';
+import { getOtpKey, getRefreshKey, getTokenBlacklistKey } from './auth.helper';
+
 import {
   LoginPayload,
   OTPPayload,
   RefreshTokenPayload,
-} from '../dto/auth.input';
-import { LoginResponse, OTPResponse } from '../dto/auth.response';
+} from './dto/auth.input';
+import { LoginResponse, OTPResponse } from './dto/auth.response';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UserService,
+    private userService: UserService,
     private jwtService: JwtService,
     private store: RedisService,
     private mailService: MailService,
@@ -38,7 +35,7 @@ export class AuthService {
 
   private async validateUser(email: string, password: string) {
     try {
-      const user = await this.usersService.findOne(email);
+      const user = await this.userService.findOne(email);
       if (!(await compare(password, user.password))) {
         throw new Error();
       }
@@ -61,7 +58,7 @@ export class AuthService {
   }
 
   private async generateOTP(userId: number) {
-    const key = getAdminOtpKey(userId);
+    const key = getOtpKey(userId);
     const existedOtp = await this.store.get<string>(key);
     if (existedOtp) {
       return existedOtp;
@@ -73,40 +70,40 @@ export class AuthService {
 
   private generateTokens(jwtPayload: JwtPayload) {
     const accessToken = this.jwtService.sign(jwtPayload, {
-      secret: process.env.JWT_ADMIN_ACCESS_SECRET,
-      expiresIn: ADMIN_ACCESS_TOKEN_EXPIRED_IN,
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: ACCESS_TOKEN_EXPIRED_IN,
     });
     const refreshToken = this.jwtService.sign(jwtPayload, {
-      secret: process.env.JWT_ADMIN_REFRESH_SECRET,
-      expiresIn: ADMIN_REFRESH_TOKEN_EXPIRED_IN,
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: REFRESH_TOKEN_EXPIRED_IN,
     });
     return { accessToken, refreshToken };
   }
 
   async verifyOTP(payload: OTPPayload) {
     try {
-      const { password: _, ...user } = await this.usersService.findOneById(
+      const { password: _, ...user } = await this.userService.findOneById(
         payload.userId,
       );
-      const otpKey = getAdminOtpKey(user.id);
+      const otpKey = getOtpKey(user.id);
       const otp = await this.store.get<string>(otpKey);
       if (payload.otpCode !== otp) {
         throw new Error();
       }
-
       const { accessToken, refreshToken } = this.generateTokens({
         email: user.email,
         sub: user.id,
+        role: user.role,
       });
 
       await this.store.set(
-        getAdminRefreshKey({
+        getRefreshKey({
           userId: user.id,
           token: refreshToken,
         }),
         user.email,
         {
-          ttl: ADMIN_REFRESH_TOKEN_EXPIRED_IN,
+          ttl: REFRESH_TOKEN_EXPIRED_IN,
         },
       );
 
@@ -118,7 +115,7 @@ export class AuthService {
 
   async refreshToken(payload: RefreshTokenPayload) {
     const jwtPayload = this.verifyToken(payload.refreshToken, 'refresh');
-    const oldToken = getAdminRefreshKey({
+    const oldToken = getRefreshKey({
       userId: jwtPayload.sub,
       token: payload.refreshToken,
     });
@@ -130,15 +127,16 @@ export class AuthService {
     const { accessToken, refreshToken } = this.generateTokens({
       email: jwtPayload.email,
       sub: jwtPayload.sub,
+      role: jwtPayload.role,
     });
 
     await Promise.allSettled([
       this.store.del(oldToken),
       this.store.set(
-        getAdminRefreshKey({ userId: jwtPayload.sub, token: refreshToken }),
+        getRefreshKey({ userId: jwtPayload.sub, token: refreshToken }),
         jwtPayload.email,
         {
-          ttl: ADMIN_REFRESH_TOKEN_EXPIRED_IN,
+          ttl: REFRESH_TOKEN_EXPIRED_IN,
         },
       ),
     ]);
@@ -150,8 +148,8 @@ export class AuthService {
       const jwtPayload = this.verifyToken(token, 'access');
       const exp = jwtPayload.exp - Math.floor(Date.now() / 1000);
       await Promise.allSettled([
-        this.store.del(getAdminRefreshKey({ userId, getAll: true })),
-        this.store.set(getAdminTokenBlacklistKey(token), userId, { ttl: exp }),
+        this.store.del(getRefreshKey({ userId, getAll: true })),
+        this.store.set(getTokenBlacklistKey(token), userId, { ttl: exp }),
       ]);
       return true;
     } catch {

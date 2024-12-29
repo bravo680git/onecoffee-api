@@ -25,3 +25,9 @@ export class RefreshTokenPayload {
   @IsNotEmpty()
   refreshToken: string;
 }
+
+export class LoginGooglePayload {
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+}
