@@ -14,11 +14,11 @@ import { ERROR_MESSAGES, MAX_SIZE } from './file.constant';
 import { FileService } from './file.service';
 
 @Controller('admin/file')
+@Auth(USER_ROLE.ADMIN)
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Post('upload')
-  @Auth(USER_ROLE.ADMIN)
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
     @UploadedFile(
