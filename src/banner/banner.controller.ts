@@ -1,18 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
+import { ApiKeyGuard, Auth, USER_ROLE } from 'src/auth';
 import { BannerService } from './banner.service';
 import { CreateBannerDto, UpdateBannerDto } from './dto/banner.input';
-import { AuthGuard, AuthRoles, USER_ROLE } from 'src/auth';
 
 @Controller('banner')
+@UseGuards(ApiKeyGuard)
 export class BannerController {
   constructor(private readonly bannerService: BannerService) {}
   @Get()
@@ -27,8 +28,7 @@ export class BannerController {
 }
 
 @Controller('admin/banner')
-@AuthRoles(USER_ROLE.ADMIN)
-@UseGuards(AuthGuard)
+@Auth(USER_ROLE.ADMIN)
 export class AdminBannerController {
   constructor(private readonly bannerService: BannerService) {}
 

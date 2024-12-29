@@ -14,29 +14,38 @@ import {
   REFRESH_TOKEN_EXPIRED_IN,
   ERROR_MESSAGE,
   OTP_TTL,
+  USER_ROLE,
 } from './auth.constant';
 import { getOtpKey, getRefreshKey, getTokenBlacklistKey } from './auth.helper';
 
 import {
+  LoginGooglePayload,
   LoginPayload,
   OTPPayload,
   RefreshTokenPayload,
 } from './dto/auth.input';
 import { LoginResponse, OTPResponse } from './dto/auth.response';
+import { Auth, google } from 'googleapis';
 
 @Injectable()
 export class AuthService {
+  private ggClient: Auth.OAuth2Client;
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
     private store: RedisService,
     private mailService: MailService,
-  ) {}
+  ) {
+    this.ggClient = new google.auth.OAuth2({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    });
+  }
 
-  private async validateUser(email: string, password: string) {
+  private async validateUserWithPassword(email: string, password: string) {
     try {
       const user = await this.userService.findOne(email);
-      if (!(await compare(password, user.password))) {
+      if (!user.password || !(await compare(password, user.password))) {
         throw new Error();
       }
       return { ...user, password: undefined };
@@ -46,7 +55,7 @@ export class AuthService {
   }
 
   async login(data: LoginPayload) {
-    const user = await this.validateUser(data.email, data.password);
+    const user = await this.validateUserWithPassword(data.email, data.password);
     const otp = await this.generateOTP(user.id);
 
     await this.mailService.sendMail('admin-otp', {
@@ -164,5 +173,43 @@ export class AuthService {
           ? process.env.JWT_ADMIN_ACCESS_SECRET
           : process.env.JWT_ADMIN_REFRESH_SECRET,
     });
+  }
+
+  async loginGoogle(payload: LoginGooglePayload) {
+    try {
+      const info = await this.ggClient.getTokenInfo(payload.token);
+
+      if (info.email !== payload.email) {
+        throw new BadRequestException();
+      }
+
+      let user = await this.userService.findOneByEmail(payload.email);
+
+      if (!user) {
+        this.ggClient.setCredentials({ access_token: payload.token });
+        const {
+          data: { picture },
+        } = await google
+          .oauth2({ version: 'v2', auth: this.ggClient })
+          .userinfo.get();
+
+        user = await this.userService.create(
+          {
+            email: payload.email,
+            avatar: picture,
+          },
+          USER_ROLE.USER,
+        );
+      }
+
+      const tokens = this.generateTokens({
+        sub: user.id,
+        email: payload.email,
+        role: USER_ROLE.USER,
+      });
+      return new LoginResponse({ ...tokens, user });
+    } catch {
+      throw new BadRequestException(ERROR_MESSAGE.LOGIN_GG_FAIL);
+    }
   }
 }

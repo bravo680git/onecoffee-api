@@ -9,11 +9,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ApiKeyGuard, Auth, USER_ROLE } from 'src/auth';
 import { BlogService } from './blog.service';
 import { CreateBlogDto, UpdateBlogDto } from './dto/blog.input';
-import { AuthGuard, AuthRoles, USER_ROLE } from 'src/auth';
 
 @Controller('blog')
+@UseGuards(ApiKeyGuard)
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
@@ -34,8 +35,7 @@ export class BlogController {
 }
 
 @Controller('admin/blog')
-@AuthRoles(USER_ROLE.ADMIN)
-@UseGuards(AuthGuard)
+@Auth(USER_ROLE.ADMIN)
 export class AdminBlogController {
   constructor(private readonly blogService: BlogService) {}
 

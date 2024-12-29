@@ -1,10 +1,13 @@
 import {
+  applyDecorators,
   createParamDecorator,
   ExecutionContext,
   SetMetadata,
+  UseGuards,
 } from '@nestjs/common';
 import { JwtPayload, RequestWithUser } from './auth';
 import { ROLE_METADATA_KEY } from './auth.constant';
+import { AuthGuard } from './auth.guard';
 
 export const AuthUser = createParamDecorator(
   (key: keyof JwtPayload, ctx: ExecutionContext) => {
@@ -15,5 +18,9 @@ export const AuthUser = createParamDecorator(
   },
 );
 
-export const AuthRoles = (...roles: string[]) =>
+export const ForAuthRoles = (...roles: string[]) =>
   SetMetadata(ROLE_METADATA_KEY, roles);
+
+export function Auth(...roles: string[]) {
+  return applyDecorators(ForAuthRoles(...roles), UseGuards(AuthGuard));
+}

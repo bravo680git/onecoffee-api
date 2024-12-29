@@ -30,4 +30,9 @@ export class LoginGooglePayload {
   @IsString()
   @IsNotEmpty()
   token: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
 }

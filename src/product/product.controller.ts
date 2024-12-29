@@ -1,19 +1,20 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ProductService } from './product.service';
+import { ApiKeyGuard, Auth, USER_ROLE } from 'src/auth';
 import { CreateProductDto, UpdateProductDto } from './dto/product.input';
-import { AuthGuard, AuthRoles, USER_ROLE } from 'src/auth';
+import { ProductService } from './product.service';
 
 @Controller('product')
+@UseGuards(ApiKeyGuard)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
@@ -29,8 +30,7 @@ export class ProductController {
 }
 
 @Controller('admin/product')
-@AuthRoles(USER_ROLE.ADMIN)
-@UseGuards(AuthGuard)
+@Auth(USER_ROLE.ADMIN)
 export class AdminProductController {
   constructor(private readonly productService: ProductService) {}
 

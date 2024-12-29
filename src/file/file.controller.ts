@@ -6,21 +6,19 @@ import {
   ParseFilePipe,
   Post,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileService } from './file.service';
-import { AuthGuard, AuthRoles, USER_ROLE } from 'src/auth';
+import { Auth, USER_ROLE } from 'src/auth';
 import { ERROR_MESSAGES, MAX_SIZE } from './file.constant';
+import { FileService } from './file.service';
 
 @Controller('admin/file')
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Post('upload')
-  @UseGuards(AuthGuard)
-  @AuthRoles(USER_ROLE.ADMIN)
+  @Auth(USER_ROLE.ADMIN)
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
     @UploadedFile(

@@ -1,18 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
+import { ApiKeyGuard, Auth, USER_ROLE } from 'src/auth';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.input';
-import { AuthGuard, AuthRoles, USER_ROLE } from 'src/auth';
 
 @Controller('category')
+@UseGuards(ApiKeyGuard)
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
   @Get()
@@ -27,8 +28,7 @@ export class CategoryController {
 }
 
 @Controller('admin/category')
-@AuthRoles(USER_ROLE.ADMIN)
-@UseGuards(AuthGuard)
+@Auth(USER_ROLE.ADMIN)
 export class AdminCategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 

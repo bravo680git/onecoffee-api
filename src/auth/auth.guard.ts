@@ -57,3 +57,20 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 }
+
+@Injectable()
+export class ApiKeyGuard implements CanActivate {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
+    const apiKey = request.headers['x-api-key']?.toString();
+    const apiKeys =
+      process.env.API_KEYS?.split(',')
+        .map((item) => item.trim())
+        .filter((item) => item) ?? [];
+
+    if (apiKeys.length && (!apiKey || !apiKeys.includes(apiKey))) {
+      throw new UnauthorizedException();
+    }
+    return true;
+  }
+}

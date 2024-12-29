@@ -21,8 +21,10 @@ export class UserService {
   }
 
   create(data: CreateUserDto, role: $Enums.UserRole) {
-    const hashPassword = hashSync(data.password);
-    data.password = hashPassword;
+    if (data.password) {
+      const hashPassword = hashSync(data.password);
+      data.password = hashPassword;
+    }
     return this.prisma.user.create({ data: { ...data, role } });
   }
 }

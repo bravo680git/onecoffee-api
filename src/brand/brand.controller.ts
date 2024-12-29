@@ -10,9 +10,10 @@ import {
 } from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { CreateBrandDto, UpdateBrandDto } from './dto/brand.input';
-import { AuthGuard, AuthRoles, USER_ROLE } from 'src/auth';
+import { ApiKeyGuard, AuthGuard, ForAuthRoles, USER_ROLE } from 'src/auth';
 
 @Controller('brand')
+@UseGuards(ApiKeyGuard)
 export class BrandController {
   constructor(private readonly brandService: BrandService) {}
 
@@ -28,7 +29,7 @@ export class BrandController {
 }
 
 @Controller('admin/brand')
-@AuthRoles(USER_ROLE.ADMIN)
+@ForAuthRoles(USER_ROLE.ADMIN)
 @UseGuards(AuthGuard)
 export class AdminBrandController {
   constructor(private readonly brandService: BrandService) {}
