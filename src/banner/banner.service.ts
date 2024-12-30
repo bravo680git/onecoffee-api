@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateBannerDto, UpdateBannerDto } from './dto/banner.input';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/core/prisma/prisma.service';
+import { CreateBannerDto, UpdateBannerDto } from './dto/banner.input';
 
 @Injectable()
 export class BannerService {
@@ -18,20 +18,14 @@ export class BannerService {
   }
 
   async findOne(id: number) {
-    try {
-      return await this.prisma.banner.findUniqueOrThrow({ where: { id } });
-    } catch {
-      throw new NotFoundException();
-    }
+    return await this.prisma.banner.findUniqueOrThrow({ where: { id } });
   }
 
   async update(id: number, payload: UpdateBannerDto) {
-    await this.findOne(id);
     return this.prisma.banner.update({ where: { id }, data: payload });
   }
 
   async remove(id: number) {
-    await this.findOne(id);
     return this.prisma.banner.delete({ where: { id } });
   }
 }

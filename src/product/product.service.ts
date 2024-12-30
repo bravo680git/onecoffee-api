@@ -1,14 +1,11 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/core/prisma/prisma.service';
-import { generateSlug, paginator } from 'src/lib/utils/helper';
+import { generateSlug, paginating } from 'src/lib/utils/helper';
 import { CreateProductDto, UpdateProductDto } from './dto/product.input';
-import { productMapper, ProductMapperPayload } from './product.mapper';
 import { PRODUCT_ORDER_BY } from './product.constant';
+import { transformPayload } from './product.helper';
+import { productMapper, ProductMapperPayload } from './product.mapper';
 
 @Injectable()
 export class ProductService {
@@ -20,57 +17,10 @@ export class ProductService {
     variants: { where: { deletedAt: null } },
   };
 
-  private calcPrice(price?: number, salePercent?: number) {
-    return price ? price * (1 - (salePercent ?? 0) / 100) : undefined;
-  }
-
-  private transformPayload(
-    data: CreateProductDto | UpdateProductDto,
-    slug?: string,
-  ): Prisma.ProductCreateInput | Prisma.ProductUpdateInput {
-    if (
-      isNaN(Number(data.price)) &&
-      !(data.variantProps?.length && data.variants?.length)
-    ) {
-      throw new BadRequestException('Price or variants must be provided');
-    }
-
-    const transformedData:
-      | Prisma.ProductCreateInput
-      | Prisma.ProductUpdateInput = {
-      ...data,
-      extraOptions: data.extraOptions
-        ? JSON.stringify(data.extraOptions)
-        : undefined,
-      variantProps: undefined,
-      variants: undefined,
-      slug,
-      actualAvgPrice: this.calcPrice(data.price, data.salePercent),
-    };
-
-    if (data.variantProps?.length && data.variants?.length) {
-      transformedData.variantProps = JSON.stringify(data.variantProps);
-      transformedData.variants = {
-        createMany: {
-          data: data.variants,
-        },
-      };
-      const avgPrice =
-        data.variants.reduce((acc, crr) => acc + crr.price, 0) /
-        data.variants.length;
-      transformedData.actualAvgPrice = this.calcPrice(
-        avgPrice,
-        data.salePercent,
-      );
-    }
-
-    return transformedData;
-  }
-
   create(payload: CreateProductDto) {
     const slug = generateSlug(payload.name);
     return this.prisma.product.create({
-      data: this.transformPayload(payload, slug) as Prisma.ProductCreateInput,
+      data: transformPayload(payload, slug),
       select: { id: true },
     });
   }
@@ -94,7 +44,7 @@ export class ProductService {
         break;
     }
 
-    const items = await paginator(
+    const items = await paginating(
       this.prisma.product,
       {
         include: this.include,
@@ -119,42 +69,35 @@ export class ProductService {
   }
 
   async findOne(id: number) {
-    try {
-      const data = await this.prisma.product.findUniqueOrThrow({
-        where: { id },
-        include: this.include,
-      });
-      return productMapper(data);
-    } catch {
-      throw new NotFoundException();
-    }
+    const data = await this.prisma.product.findUniqueOrThrow({
+      where: { id },
+      include: this.include,
+    });
+    return productMapper(data);
   }
 
   async findOneBySlug(slug: string) {
-    try {
-      const data = await this.prisma.product.findUniqueOrThrow({
-        where: { slug },
-        include: this.include,
-      });
+    const data = await this.prisma.product.findUniqueOrThrow({
+      where: { slug },
+      include: this.include,
+    });
 
-      return productMapper(data);
-    } catch {
-      throw new NotFoundException();
-    }
+    return productMapper(data);
   }
 
   async update(id: number, payload: UpdateProductDto) {
-    await this.findOne(id);
-    await this.prisma.variant.deleteMany({ where: { productId: id } });
-    return this.prisma.product.update({
-      where: { id },
-      data: this.transformPayload(payload) as Prisma.ProductUpdateInput,
-      select: { id: true },
-    });
+    const [_, result] = await this.prisma.$transaction([
+      this.prisma.variant.deleteMany({ where: { productId: id } }),
+      this.prisma.product.update({
+        where: { id },
+        data: transformPayload(payload),
+        select: { id: true },
+      }),
+    ]);
+    return result;
   }
 
   async remove(id: number) {
-    await this.findOne(id);
     return this.prisma.product.delete({ where: { id }, select: { id: true } });
   }
 }

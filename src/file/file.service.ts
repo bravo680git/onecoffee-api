@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { FileResponseDto } from './dto/file.response';
-import { generateUUID } from 'src/lib/utils/helper';
+import { generateUId } from 'src/lib/utils/helper';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class FileService {
   }
 
   async upload(file: Express.Multer.File, name: string) {
-    const fileName = (name || file.filename) + generateUUID();
+    const fileName = (name || file.filename) + generateUId();
 
     try {
       await this.client.send(

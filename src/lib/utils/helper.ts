@@ -1,4 +1,4 @@
-export const generateUUID = (cfg?: { hasPrefix?: boolean; round?: number }) => {
+export const generateUId = (cfg?: { hasPrefix?: boolean; round?: number }) => {
   let slug = '';
   for (let i = 1; i <= (cfg?.round ?? 1); i++) {
     slug += Math.random().toString(36).slice(2);
@@ -13,11 +13,11 @@ export const generateSlug = (input: string) => {
       .trim()
       .replace(/[^\w\s-]/g, '')
       .replace(/\s+/g, '-')
-      .replace(/-+/g, '-') + generateUUID()
+      .replace(/-+/g, '-') + generateUId()
   );
 };
 
-export const paginator = async <
+export const paginating = async <
   M extends {
     findMany: (args: any) => Promise<any>;
     count: (args: any) => Promise<number>;

@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/core/prisma/prisma.service';
-import { generateSlug, paginator } from 'src/lib/utils/helper';
-import { CreateBlogDto, UpdateBlogDto } from './dto/blog.input';
 import { CATEGORY_TYPE_ID } from 'src/lib/utils/constant';
+import { generateSlug, paginating } from 'src/lib/utils/helper';
+import { CreateBlogDto, UpdateBlogDto } from './dto/blog.input';
 
 @Injectable()
 export class BlogService {
@@ -14,7 +14,7 @@ export class BlogService {
   }
 
   async findAll(query?: RequestQuery) {
-    return paginator(
+    return paginating(
       this.prisma.blog,
       {
         orderBy: { updatedAt: 'desc' },
@@ -28,22 +28,14 @@ export class BlogService {
   }
 
   findOne(id: number) {
-    try {
-      return this.prisma.blog.findUniqueOrThrow({ where: { id } });
-    } catch {
-      throw new NotFoundException();
-    }
+    return this.prisma.blog.findUniqueOrThrow({ where: { id } });
   }
 
   findOneBySlug(slug: string) {
-    try {
-      return this.prisma.blog.findUniqueOrThrow({
-        where: { slug },
-        include: { category: true },
-      });
-    } catch {
-      throw new NotFoundException();
-    }
+    return this.prisma.blog.findUniqueOrThrow({
+      where: { slug },
+      include: { category: true },
+    });
   }
 
   async findCategoriesBlogs(limit?: string) {
@@ -69,12 +61,10 @@ export class BlogService {
   }
 
   async update(id: number, payload: UpdateBlogDto) {
-    await this.findOne(id);
     return this.prisma.blog.update({ where: { id }, data: payload });
   }
 
   async remove(id: number) {
-    await this.findOne(id);
     return this.prisma.blog.delete({ where: { id } });
   }
 }
