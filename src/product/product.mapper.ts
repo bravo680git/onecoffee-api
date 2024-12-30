@@ -1,12 +1,13 @@
 import { Prisma } from '@prisma/client';
 
 type ProductItemInput = Prisma.ProductGetPayload<{
-  include: { brand: true; category: true; variants: true };
+  include: { brand: true; category: true; variants: true; ratings: true };
 }>;
 
 type ProductItemOutput = Omit<ProductItemInput, ''> & {
   minPrice: number;
   maxPrice: number;
+  avgRating?: number;
 };
 
 export type ProductMapperPayload =
@@ -29,7 +30,11 @@ const mapper = (item: ProductItemInput): ProductItemOutput => {
   const extraOptions = item.extraOptions
     ? JSON.parse(item.extraOptions as string)
     : undefined;
-  return { ...item, minPrice, maxPrice, variantProps, extraOptions };
+  const avgRating = item.ratings?.length
+    ? (item.ratings.reduce((acc, crr) => acc + crr.score, 0) ?? 0) /
+      item.ratings.length
+    : undefined;
+  return { ...item, minPrice, maxPrice, variantProps, extraOptions, avgRating };
 };
 
 export const productMapper = (data: ProductMapperPayload) => {

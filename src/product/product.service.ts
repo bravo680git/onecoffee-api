@@ -1,8 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/core/prisma/prisma.service';
 import { generateSlug, paginating } from 'src/lib/utils/helper';
-import { CreateProductDto, UpdateProductDto } from './dto/product.input';
+import {
+  CreateProductDto,
+  CreateProductRatingDto,
+  UpdateProductDto,
+  UpdateProductRatingDto,
+} from './dto/product.input';
 import { PRODUCT_ORDER_BY } from './product.constant';
 import { transformPayload } from './product.helper';
 import { productMapper, ProductMapperPayload } from './product.mapper';
@@ -79,7 +89,10 @@ export class ProductService {
   async findOneBySlug(slug: string) {
     const data = await this.prisma.product.findUniqueOrThrow({
       where: { slug },
-      include: this.include,
+      include: {
+        ...this.include,
+        ratings: { where: { deletedAt: null }, include: { user: true } },
+      },
     });
 
     return productMapper(data);
@@ -99,5 +112,65 @@ export class ProductService {
 
   async remove(id: number) {
     return this.prisma.product.delete({ where: { id }, select: { id: true } });
+  }
+
+  async createRating(
+    payload: CreateProductRatingDto,
+    productId: number,
+    userId: number,
+  ) {
+    const count = await this.prisma.rating.count({
+      where: {
+        productId,
+        userId,
+      },
+    });
+    if (count > 0) {
+      throw new ConflictException();
+    }
+    return this.prisma.rating.create({
+      data: {
+        ...payload,
+        userId,
+        productId,
+      },
+    });
+  }
+
+  private async checkProductRating(
+    id: number,
+    productId: number,
+    userId: number,
+  ) {
+    const rating = await this.prisma.rating.findUniqueOrThrow({
+      where: { id },
+    });
+    if (productId !== rating.productId) {
+      throw new NotFoundException();
+    }
+    if (rating.userId !== userId) {
+      throw new ForbiddenException();
+    }
+
+    return rating;
+  }
+
+  async updateRating(
+    id: number,
+    payload: UpdateProductRatingDto,
+    productId: number,
+    userId: number,
+  ) {
+    await this.checkProductRating(id, productId, userId);
+
+    return this.prisma.rating.update({
+      where: { id },
+      data: payload,
+    });
+  }
+
+  async removeRating(id: number, productId: number, userId: number) {
+    await this.checkProductRating(id, productId, userId);
+    return this.prisma.rating.delete({ where: { id } });
   }
 }

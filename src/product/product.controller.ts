@@ -9,8 +9,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiKeyGuard, Auth, USER_ROLE } from 'src/auth';
-import { CreateProductDto, UpdateProductDto } from './dto/product.input';
+import { ApiKeyGuard, Auth, AuthUser, USER_ROLE } from 'src/auth';
+import {
+  CreateProductDto,
+  CreateProductRatingDto,
+  UpdateProductDto,
+  UpdateProductRatingDto,
+} from './dto/product.input';
 import { ProductService } from './product.service';
 
 @Controller('product')
@@ -26,6 +31,38 @@ export class ProductController {
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
     return this.productService.findOneBySlug(slug);
+  }
+
+  @Post(':product-id/rating')
+  @Auth(USER_ROLE.USER)
+  createRating(
+    @Body() payload: CreateProductRatingDto,
+    @Param('product-id') productId: number,
+    @AuthUser('sub') userId: number,
+  ) {
+    return this.productService.createRating(payload, productId, userId);
+  }
+
+  @Patch(':product-id/rating/:id')
+  @Auth(USER_ROLE.USER)
+  updateRating(
+    @Param('id') id: number,
+    @Body()
+    payload: UpdateProductRatingDto,
+    @Param('product-id') productId: number,
+    @AuthUser('sub') userId: number,
+  ) {
+    return this.productService.updateRating(id, payload, productId, userId);
+  }
+
+  @Delete(':product-id/rating/:id')
+  @Auth(USER_ROLE.USER)
+  removeRating(
+    @Param('id') id: number,
+    @Param('product-id') productId: number,
+    @AuthUser('sub') userId: number,
+  ) {
+    return this.productService.removeRating(id, productId, userId);
   }
 }
 

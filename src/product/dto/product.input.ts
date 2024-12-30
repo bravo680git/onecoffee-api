@@ -8,6 +8,9 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Max,
+  MaxLength,
+  Min,
   ValidateNested,
 } from 'class-validator';
 
@@ -122,3 +125,22 @@ export class CreateProductDto
 }
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {}
+
+export class CreateProductRatingDto
+  implements Omit<Prisma.RatingUncheckedCreateInput, 'userId' | 'productId'>
+{
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  @Max(5)
+  score: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  comment?: string;
+}
+
+export class UpdateProductRatingDto extends PartialType(
+  CreateProductRatingDto,
+) {}

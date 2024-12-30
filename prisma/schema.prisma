@@ -102,6 +102,7 @@ model Product {
   category Category @relation(fields: [categoryId], references: [id])
   brand Brand? @relation(fields: [brandId], references: [id])
   variants Variant[]
+  ratings Rating[]
 
   @@index([slug])
   @@map("product")
@@ -141,5 +142,23 @@ model User {
   updatedAt DateTime? @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
+  ratings Rating[]
+
   @@map("user")
+}
+
+model Rating {
+  id Int @id @default(autoincrement())
+  userId Int @map("user_id")
+  productId Int @map("product_id")
+  score Int
+  comment String?
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  user User @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("rating")
 }
