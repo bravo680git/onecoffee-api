@@ -1,12 +1,9 @@
 FROM node:21-alpine AS builder
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN npm i -g pnpm
-RUN pnpm i --frozen-lockfile
+RUN corepack enable && pnpm i --frozen-lockfile
 COPY . .
-RUN npx prisma generate
-RUN pnpm build
-RUN pnpm i -P
+RUN npx prisma generate && pnpm build && pnpm i --prod
 
 FROM node:21-alpine AS runner
 WORKDIR /app
