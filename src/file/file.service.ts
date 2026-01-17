@@ -16,6 +16,8 @@ export class FileService {
         accessKeyId: process.env.S3_ACCESS_KEY_ID ?? '',
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? '',
       },
+      endpoint: process.env.S3_ENDPOINT ?? undefined,
+      forcePathStyle: true,
     });
     this.bucketName = process.env.S3_BUCKET_NAME ?? '';
     this.bucketUrl = process.env.S3_URL ?? '';
