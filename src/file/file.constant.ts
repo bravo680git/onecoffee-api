@@ -3,4 +3,4 @@ export const ERROR_MESSAGES = {
   INVALID_TYPE: 'INVALID_TYPE',
 };
 
-export const MAX_SIZE = 400000;
+export const MAX_SIZE = 1024 * 1024 * 1;
