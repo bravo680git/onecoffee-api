@@ -77,16 +77,11 @@ jobs:
             cd $WEB_FOLDER && \
 
             echo '${{ secrets.ENVS }}' > .env && \
-            if [ -f docker-compose.yaml ]; then \
-              echo \"docker-compose.yaml exists, proceeding with deployment.\" && \
-              docker compose down && \
-              docker rmi -f $IMAGE_NAME:$IMAGE_TAG && \
-              docker pull $IMAGE_NAME:$IMAGE_TAG && \
-              docker compose up -d; \
-            else \
-              echo \"docker-compose.yaml not found in $WEB_FOLDER\" && \
-              exit 1; \
-            fi"
+            docker compose down && \
+            docker rmi -f $IMAGE_NAME:$IMAGE_TAG && \
+            docker pull $IMAGE_NAME:$IMAGE_TAG && \
+            docker compose up -d; \
+          "
 
       - name: Notify to Telegram
         if: always()
