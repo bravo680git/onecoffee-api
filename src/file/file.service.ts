@@ -11,7 +11,6 @@ export class FileService {
 
   constructor() {
     this.client = new S3Client({
-      region: process.env.S3_REGION,
       credentials: {
         accessKeyId: process.env.S3_ACCESS_KEY_ID ?? '',
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? '',
@@ -40,6 +39,7 @@ export class FileService {
       );
       return new FileResponseDto(fileName, this.getFileUrl(fileName));
     } catch (error) {
+      console.error('[File Service] Upload Error:', error);
       throw new InternalServerErrorException(
         process.env.DEV === 'true' ? error : undefined,
       );
